@@ -13,18 +13,19 @@ import {
 
 // Create a new user
 export const createUser = async (user: newUser) => {
-  const [insertdUser] = await db.insert(users).values(user).returning();
-  return insertdUser;
+  const [insertedUser] = await db.insert(users).values(user).returning();
+  return insertedUser;
 };
 
 // Get a user by their ID
 export const getUserById = async (id: string) => {
-  // Find the first user where users.id matches the provided ID
   return await db.query.users.findFirst({ where: eq(users.id, id) });
 };
 
 // Update a user
 export const updateUser = async (id: string, data: Partial<newUser>) => {
+  const existingUser = await getUserById(id);
+  if (!existingUser) throw new Error(`User with id ${id} not found`);
   const [updatedUser] = await db
     .update(users)
     .set(data)
@@ -35,7 +36,8 @@ export const updateUser = async (id: string, data: Partial<newUser>) => {
 
 // Delete a user
 export const deleteUser = async (id: string) => {
-  // Delete the user with the given ID and return the deleted row
+  const existingUser = await getUserById(id);
+  if (!existingUser) throw new Error(`User with id ${id} not found`);
   const [deletedUser] = await db
     .delete(users)
     .where(eq(users.id, id))
@@ -53,7 +55,6 @@ export const createProduct = async (product: newProduct) => {
 
 // Get a product by its ID
 export const getProductById = async (id: string) => {
-  // Include related user and comments with nested user info
   return await db.query.products.findFirst({
     where: eq(products.id, id),
     with: { 
@@ -67,21 +68,23 @@ export const getProductById = async (id: string) => {
 export const getProductByUserId = async (userId: string) => {
   return await db.query.products.findMany({
     where: eq(products.userId, userId),
-    with: { user: true }, // Include the user data
-    orderBy: (product, { desc }) => [desc(product.createdAt)], // Order by newest first
+    with: { user: true },
+    orderBy: (product, { desc }) => [desc(product.createdAt)],
   });
 };
 
 // Get all products
 export const getAllProducts = async () => {
   return await db.query.products.findMany({
-    with: { user: true }, // Include user data for each product
-    orderBy: (product, { desc }) => [desc(product.createdAt)], // Newest first
+    with: { user: true },
+    orderBy: (product, { desc }) => [desc(product.createdAt)],
   });
 };
 
 // Update a product
 export const updateProduct = async (id: string, data: Partial<newProduct>) => {
+  const existingProduct = await getProductById(id);
+  if (!existingProduct) throw new Error(`Product with id ${id} not found`);
   const [updatedProduct] = await db
     .update(products)
     .set(data)
@@ -92,6 +95,8 @@ export const updateProduct = async (id: string, data: Partial<newProduct>) => {
 
 // Delete a product
 export const deleteProduct = async (id: string) => {
+  const existingProduct = await getProductById(id);
+  if (!existingProduct) throw new Error(`Product with id ${id} not found`);
   const [deletedProduct] = await db
     .delete(products)
     .where(eq(products.id, id))
@@ -119,6 +124,8 @@ export const getCommentsByProductId = async (productId: string) => {
 
 // Update a comment
 export const updateComment = async (id: string, data: Partial<newComment>) => {
+  const existingComment = await getCommentById(id);
+  if (!existingComment) throw new Error(`Comment with id ${id} not found`);
   const [updatedComment] = await db
     .update(comments)
     .set(data)
@@ -129,6 +136,8 @@ export const updateComment = async (id: string, data: Partial<newComment>) => {
 
 // Delete a comment
 export const deleteComment = async (id: string) => {
+  const existingComment = await getCommentById(id);
+  if (!existingComment) throw new Error(`Comment with id ${id} not found`);
   const [deletedComment] = await db
     .delete(comments)
     .where(eq(comments.id, id))
