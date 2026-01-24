@@ -13,8 +13,6 @@ import {
 
 // Create a new user
 export const createUser = async (user: newUser) => {
-  // Insert a new user into the 'users' table
-  // 'returning()' returns the newly created row
   const [insertdUser] = await db.insert(users).values(user).returning();
   return insertdUser;
 };
@@ -27,8 +25,6 @@ export const getUserById = async (id: string) => {
 
 // Update a user
 export const updateUser = async (id: string, data: Partial<newUser>) => {
-  // Update the user with the specified ID
-  // 'Partial<newUser>' allows updating only some fields
   const [updatedUser] = await db
     .update(users)
     .set(data)
