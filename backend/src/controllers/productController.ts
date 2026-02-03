@@ -126,3 +126,94 @@ export async function createProduct(req: Request, res: Response) {
     });
   }
 }
+export async function updateProduct(req: Request, res: Response) {
+  try {
+    const { userId } = getAuth(req);
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'Unauthorized',
+      });
+    }
+
+    const id = req.params.id as string;
+    const { title, description, imageUrl } = req.body;
+
+    const existingProduct = await queries.getProductById(id);
+
+    if (!existingProduct) {
+      return res.status(404).json({
+        success: false,
+        message: `Product with id ${id} not found`,
+      });
+    }
+
+    if (existingProduct.userId !== userId) {
+      return res.status(403).json({
+        success: false,
+        message: 'Forbidden: You do not have permission to update this product',
+      });
+    }
+
+    const updatedProduct = await queries.updateProduct(id, { title, description, imageUrl });
+
+    res.status(200).json({
+      success: true,
+      message: 'Product updated successfully',
+      data: updatedProduct,
+    });
+  } catch (error: any) {
+    console.error('Error updating product:', error);
+    res.status(500).json({
+      success: false,
+      message: 'An error occurred while updating product',
+      error: error.message,
+    });
+  }
+}
+export async function deleteProduct(req: Request, res: Response) {
+  try {
+    const { userId } = getAuth(req);
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'Unauthorized',
+      });
+    }
+
+    const id = req.params.id as string;
+
+    const existingProduct = await queries.getProductById(id);
+
+    if (!existingProduct) {
+      return res.status(404).json({
+        success: false,
+        message: `Product with id ${id} not found`,
+      });
+    }
+
+    if (existingProduct.userId !== userId) {
+      return res.status(403).json({
+        success: false,
+        message: 'Forbidden: You do not have permission to delete this product',
+      });
+    }
+
+    const deletedProduct = await queries.deleteProduct(id);
+
+    res.status(200).json({
+      success: true,
+      message: 'Product deleted successfully',
+      data: deletedProduct,
+    });
+  } catch (error: any) {
+    console.error('Error deleting product:', error);
+    res.status(500).json({
+      success: false,
+      message: 'An error occurred while deleting the product',
+      error: error.message,
+    });
+  }
+}
