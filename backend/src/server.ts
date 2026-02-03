@@ -8,6 +8,9 @@ import cors from "cors"; // Pour autoriser les requêtes cross-origin (CORS)
 import helmet from "helmet"; // Sécuriser les headers HTTP
 import rateLimit from "express-rate-limit"; // Limiter le nombre de requêtes par IP
 import { clerkMiddleware } from '@clerk/express'; // Middleware d'authentification Clerk
+import userRoutes from "./routes/UserRoutes"; // Routes pour les utilisateurs
+import productRoutes from "./routes/ProductRoutes"; // Routes pour les produits
+import commentRoutes from "./routes/CommentRoutes"; // Routes pour les commentaires
 
 // --------------------
 // VARIABLES D'ENVIRONNEMENT
@@ -52,6 +55,11 @@ app.use(limiter);
 
 // Configurer Express pour renvoyer du JSON joliment formaté (2 espaces)
 app.set("json spaces", 2);
+
+// Mounting Routes
+app.use("/api/users", userRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/comments", commentRoutes);
 
 // --------------------
 // ROUTES
