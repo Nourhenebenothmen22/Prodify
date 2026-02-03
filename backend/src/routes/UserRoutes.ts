@@ -9,4 +9,5 @@ const router = Router(); // Create a new router instance
 // If authenticated, the syncUser controller runs to sync the user with the database
 router.post("/sync", requireAuth, syncUser);
 
+
 export default router; // Export the router to use it in the main server file
